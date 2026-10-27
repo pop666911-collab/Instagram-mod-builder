@@ -11,29 +11,15 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Download Clean Instagram IPA
+    - name: Package Source Modules
       run: |
         mkdir -p output_mod
-        echo "Trying primary source..."
-        curl -L -o output_mod/Instagram_KODA_Mod.ipa "https://github.com/PoomSmart/Instagram-Patches/releases/download/untagged/Instagram.ipa" || true
-        
-        # Если файл не скачался или весит слишком мало, пробуем зеркало
-        FILESIZE=$(stat -f%z output_mod/Instagram_KODA_Mod.ipa 2>/dev/null || echo 0)
-        if [ "$FILESIZE" -lt 10000000 ]; then
-          echo "Trying alternative mirror..."
-          curl -L -o output_mod/Instagram_KODA_Mod.ipa "https://raw.githubusercontent.com/ShahabAudio/IPA/main/Instagram.ipa" || true
-        fi
-
-        # Финальная проверка размера
-        FINAL_SIZE=$(stat -f%z output_mod/Instagram_KODA_Mod.ipa 2>/dev/null || echo 0)
-        echo "Final file size: $FINAL_SIZE bytes"
-        if [ "$FINAL_SIZE" -lt 10000000 ]; then
-          echo "Error: Could not download a valid IPA file."
-          exit 1
-        fi
+        echo "Packaging KODA modules for ESign..."
+        # Архивируем наши .m файлы в удобный пакет для внедрения
+        zip -r output_mod/KODA_Modules.zip DeviceSpoofer.m CookieLoginManager.m AutoUploadManager.m
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: Instagram_KODA_Mod
-        path: output_mod/*.ipa
+        path: output_mod/*.zip

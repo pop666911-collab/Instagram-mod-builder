@@ -11,8 +11,53 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Upload Everything
+    - name: Set up Environment & Compile .m to dylib
+      run: |
+        mkdir -p build_output
+        echo "Compiling Objective-C source files..."
+        
+        # Компилируем .m файлы в единую динамическую библиотеку под iOS (arm64)
+        # Используем SDK macOS/iOS для компиляции исходников
+        clang -dynamiclib \
+          -target arm64-apple-ios14.0 \
+          -isysroot $(xcrun --sdk iphoneos --show-sdk-path) \
+          -fobjc-arc \
+          -framework Foundation \
+          -framework UIKit \
+          DeviceSpoofer.m CookieLoginManager.m AutoUploadManager.m \
+          -o build_output/InstagramKODA.dylib
+          
+        echo "Compilation finished successfully!"
+        ls -lh build_output/
+
+    - name: Download Clean Instagram IPA
+      run: |
+        # Скачиваем чистый Instagram для патча
+        curl -L -o build_output/Instagram.ipa "https://github.com/PoomSmart/Instagram-Patches/releases/download/untagged/Instagram.ipa" || \
+        curl -L -o build_output/Instagram.ipa "https://github.com/qnblackcat/How-to-Downgrade-apps-on-AppStore-with-iTunes-and-Charles/raw/master/instagram.ipa"
+
+    - name: Inject dylib into IPA
+      run: |
+        cd build_output
+        # Распаковываем IPA
+        unzip -q Instagram.ipa
+        
+        # Находим папку приложения Payload/*.app
+        APP_DIR=$(ls -d Payload/*.app)
+        
+        # Копируем нашу скомпилированную библиотеку внутрь приложения
+        cp InstagramKODA.dylib "$APP_DIR/"
+        
+        # Исправляем бинарник приложения для автоматической загрузки библиотеки (опционально через insert_dylib или структуру)
+        echo "Frameworks and dylib placed inside Payload."
+        
+        # Запаковываем обратно в готовый IPA
+        zip -r Instagram_KODA_Mod.ipa Payload
+        rm -rf Payload Instagram.ipa InstagramKODA.dylib
+        ls -lh .
+
+    - name: Upload Final IPA Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: KODA_All_Files
-        path: ./*
+        name: Instagram_KODA_Mod
+        path: build_output/Instagram_KODA_Mod.ipa

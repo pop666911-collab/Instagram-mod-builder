@@ -11,25 +11,23 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Compile to dylib
+    - name: Show SDKs and Compile with Verbose Output
       run: |
-        mkdir -p build_output
-        echo "Compiling modules..."
+        echo "=== AVAILABLE SDKS ==="
+        xcodebuild -showsdks
         
-        # Собираем без громоздкого xcrun, указывая чистый target и фреймворки
+        mkdir -p build_output
+        
+        echo "=== STARTING COMPILATION ==="
+        # Запускаем clang с выводом всех ошибок (перенаправляем stderr в stdout)
         clang -dynamiclib \
           -target arm64-apple-ios14.0 \
+          -isysroot $(xcrun --sdk iphoneos --show-sdk-path) \
           -fobjc-arc \
           -framework Foundation \
           -framework UIKit \
           Tweak.m DeviceSpoofer.m CookieLoginManager.m AutoUploadManager.m \
-          -o build_output/KODA.dylib
-          
-        echo "Build finished successfully!"
-        ls -lh build_output/
+          -o build_output/KODA.dylib 2>&1 || true
 
-    - name: Upload dylib Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: KODA_dylib
-        path: build_output/KODA.dylib
+        echo "=== CHECKING OUTPUT ==="
+        ls -lh build_output/

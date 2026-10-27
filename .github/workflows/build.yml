@@ -11,16 +11,20 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Create and Package Modules
+    - name: Package KODA Modules via Python
       run: |
         mkdir -p output_mod
-        echo "Creating archive with modules..."
-        
-        # Упаковываем все файлы с расширением .m, которые есть в репозитории
-        zip output_mod/KODA_Modules.zip *.m || echo "No .m files found at root"
+        python3 -c "
+        import zipfile, glob
+        with zipfile.ZipFile('output_mod/KODA_Modules.zip', 'w') as zf:
+            for f in glob.glob('*.m'):
+                zf.write(f)
+                print(f'Added: {f}')
+        "
+        ls -lh output_mod/
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Instagram_KODA_Mod
-        path: output_mod/*.zip
+        name: KODA_Modules_Archive
+        path: output_mod/KODA_Modules.zip

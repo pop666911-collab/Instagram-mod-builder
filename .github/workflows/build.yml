@@ -14,12 +14,12 @@ jobs:
     - name: Download Clean Instagram IPA
       run: |
         mkdir -p output_mod
-        # Скачиваем стабильный чистый IPA Instagram напрямую
-        curl -L -o output_mod/Instagram_KODA_Mod.ipa "https://raw.githubusercontent.com/qnblackcat/How-to-Downgrade-apps-on-AppStore-with-iTunes-and-Charles/master/instagram.ipa"
+        echo "Downloading valid Instagram IPA..."
+        curl -L -o output_mod/Instagram_KODA_Mod.ipa "https://github.com/qnblackcat/How-to-Downgrade-apps-on-AppStore-with-iTunes-and-Charles/raw/master/instagram.ipa"
 
-    - name: Verify File Size
+    - name: Check file size
       run: |
-        ls -la output_mod/Instagram_KODA_Mod.ipa
+        ls -lh output_mod/Instagram_KODA_Mod.ipa
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4

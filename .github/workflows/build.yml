@@ -1,30 +1,23 @@
-name: Build Instagram Mod IPA
+name: Export KODA Modules
 
 on:
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Prepare ESign Injectable Package
+    - name: Archive Raw Source Files
       run: |
-        mkdir -p ESign_Payload/KODA_Modules
-        cp DeviceSpoofer.m ESign_Payload/KODA_Modules/
-        cp CookieLoginManager.m ESign_Payload/KODA_Modules/
-        cp AutoUploadManager.m ESign_Payload/KODA_Modules/
-        
-        cd ESign_Payload
-        zip -r ../Instagram_KODA_Ready.zip *
-        cd ..
-        ls -lh Instagram_KODA_Ready.zip
+        mkdir -p release
+        zip -r release/KODA_Source_Code.zip *.m
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Instagram_KODA_Package
-        path: Instagram_KODA_Ready.zip
+        name: KODA_Source_Archive
+        path: release/KODA_Source_Code.zip

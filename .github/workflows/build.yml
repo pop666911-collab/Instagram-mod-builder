@@ -11,31 +11,21 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Compile to dylib
+    - name: Direct Compile without SDK check
       run: |
         mkdir -p build_output
-        echo "Starting clean compilation..."
+        echo "Compiling directly..."
         
-        # Компилируем напрямую под iOS SDK без вызова xcrun, который падает на раннере
-        SDK_PATH=$(xcrun --sdk iphoneos --show-sdk-path 2>/dev/null || echo "")
-        
-        if [ -z "$SDK_PATH" ]; then
-          # Запасной вариант пути для SDK на макос-раннере
-          SDK_PATH="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk"
-        fi
-        
-        echo "Using SDK: $SDK_PATH"
-        
+        # Прямая компиляция под iOS arm64 без капризных путей SDK
         clang -dynamiclib \
           -target arm64-apple-ios14.0 \
-          -isysroot "$SDK_PATH" \
           -fobjc-arc \
           -framework Foundation \
           -framework UIKit \
           Tweak.m DeviceSpoofer.m CookieLoginManager.m AutoUploadManager.m \
           -o build_output/KODA.dylib
           
-        echo "Build finished successfully!"
+        echo "Compilation done!"
         ls -lh build_output/
 
     - name: Upload dylib Artifact

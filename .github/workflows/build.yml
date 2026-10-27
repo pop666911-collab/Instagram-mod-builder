@@ -14,11 +14,21 @@ jobs:
     - name: Compile to dylib
       run: |
         mkdir -p build_output
-        echo "Compiling modules..."
+        echo "Starting clean compilation..."
+        
+        # Компилируем напрямую под iOS SDK без вызова xcrun, который падает на раннере
+        SDK_PATH=$(xcrun --sdk iphoneos --show-sdk-path 2>/dev/null || echo "")
+        
+        if [ -z "$SDK_PATH" ]; then
+          # Запасной вариант пути для SDK на макос-раннере
+          SDK_PATH="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk"
+        fi
+        
+        echo "Using SDK: $SDK_PATH"
         
         clang -dynamiclib \
           -target arm64-apple-ios14.0 \
-          -isysroot $(xcrun --sdk iphoneos --show-sdk-path) \
+          -isysroot "$SDK_PATH" \
           -fobjc-arc \
           -framework Foundation \
           -framework UIKit \

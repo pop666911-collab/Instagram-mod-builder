@@ -14,12 +14,17 @@ jobs:
     - name: Download Clean Instagram IPA
       run: |
         mkdir -p output_mod
-        echo "Downloading valid Instagram IPA..."
+        echo "Downloading Instagram IPA..."
+        # Используем прямую стабильную ссылку на рабочий IPA
         curl -L -o output_mod/Instagram_KODA_Mod.ipa "https://github.com/qnblackcat/How-to-Downgrade-apps-on-AppStore-with-iTunes-and-Charles/raw/master/instagram.ipa"
-
-    - name: Check file size
-      run: |
-        ls -lh output_mod/Instagram_KODA_Mod.ipa
+        
+        # Проверяем реальный размер файла, если он меньше 10 МБ — ошибка скачивания
+        FILESIZE=$(stat -f%z output_mod/Instagram_KODA_Mod.ipa)
+        echo "Downloaded file size: $FILESIZE bytes"
+        if [ "$FILESIZE" -lt 10000000 ]; then
+          echo "Error: Downloaded file is too small!"
+          exit 1
+        fi
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4

@@ -1,0 +1,71 @@
+#import <UIKit/UIKit.h>
+
+@interface CookieLoginManager : NSObject
++ (void)showLoginChoiceAlert;
++ (void)injectCookieWithString:(NSString *)cookieString;
+@end
+
+@implementation CookieLoginManager
+
++ (void)showLoginChoiceAlert {
+    // Получаем текущее активное окно приложения
+    UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
+    UIViewController *rootVC = keyWindow.rootViewController;
+    
+    // Создаем окно выбора метода входа
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"KODA & Edw Mod"
+                                                                    message:@"Выберите способ авторизации:"
+                                                             preferredStyle:UIAlertControllerStyleAlert];
+    
+    // Кнопка входа по кукам
+    [alert addAction:[UIAlertAction actionWithTitle:@"Вход по кукам" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self promptForCookieInput];
+    }]];
+    
+    // Кнопка стандартного входа
+    [alert addAction:[UIAlertAction actionWithTitle:@"Обычный вход" style:UIAlertActionStyleCancel handler:nil]];
+    
+    [rootVC presentViewController:alert animated:YES completion:nil];
+}
+
++ (void)promptForCookieInput {
+    UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
+    UIViewController *rootVC = keyWindow.rootViewController;
+    
+    // Окно ввода текстовой строки с куками
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Быстрый вход"
+                                                                    message:@"Вставьте вашу строку sessionid (куки):"
+                                                             preferredStyle:UIAlertControllerStyleAlert];
+    
+    [alert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+        textField.placeholder = @"sessionid=your_cookie_value";
+    }];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:@"Войти" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        NSString *cookieStr = alert.textFields.firstObject.text;
+        [self injectCookieWithString:cookieStr];
+    }]];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:@"Отмена" style:UIAlertActionStyleCancel handler:nil]];
+    
+    [rootVC presentViewController:alert animated:YES completion:nil];
+}
+
++ (void)injectCookieWithString:(NSString * )cookieString {
+    // Программное внедрение куки в хранилище сессий Instagram
+    NSArray *components = [cookieString componentsSeparatedByString:@"="];
+    if (components.count >= 2) {
+        NSMutableDictionary *cookieProperties = [NSMutableDictionary dictionary];
+        [cookieProperties setObject:components[0] forKey:NSHTTPCookieName];
+        [cookieProperties setObject:components[1] forKey:NSHTTPCookieValue];
+        [cookieProperties setObject:@".instagram.com" forKey:NSHTTPCookieDomain];
+        [cookieProperties setObject:@"/" forKey:NSHTTPCookiePath];
+        
+        NSHTTPCookie *cookie = [NSHTTPCookie cookieWithProperties:cookieProperties];
+        [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookie:cookie];
+        
+        NSLog(@"[KODA Mod] Куки успешно внедрены в сессию!");
+    }
+}
+
+@end

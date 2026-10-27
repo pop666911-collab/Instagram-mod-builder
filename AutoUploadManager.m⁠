@@ -1,0 +1,50 @@
+#import <UIKit/UIKit.h>
+
+@interface AutoUploadManager : NSObject
++ (void)showUploadCountChoice;
++ (void)processBatchUploadWithCount:(NSInteger)count;
+@end
+
+@implementation AutoUploadManager
+
++ (void)showUploadCountChoice {
+    UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
+    UIViewController *rootVC = keyWindow.rootViewController;
+    
+    // Меню выбора количества видео для автозалива
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"KODA & Edw Mod"
+                                                                    message:@"Выберите режим залива видео:"
+                                                             preferredStyle:UIAlertControllerStyleAlert];
+    
+    // Загрузка одного видео
+    [alert addAction:[UIAlertAction actionWithTitle:@"Одно видео" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self processBatchUploadWithCount:1];
+    }]];
+    
+    // Загрузка нескольких видео сразу (пакетный залив)
+    [alert addAction:[UIAlertAction actionWithTitle:@"Сразу несколько (Пакет)" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self processBatchUploadWithCount:5]; // Условно пакет из нескольких файлов
+    }]];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:@"Отмена" style:UIAlertActionStyleCancel handler:nil]];
+    
+    [rootVC presentViewController:alert animated:YES completion:nil];
+}
+
++ (void)processBatchUploadWithCount:(NSInteger)count {
+    UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
+    UIViewController *rootVC = keyWindow.rootViewController;
+    
+    NSString *message = (count == 1) ? @"Запуск загрузки 1 видео..." : [NSString stringWithFormat:@"Запуск пакетного автозалива (%ld видео)...", (long)count];
+    
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Автозалив в один клик"
+                                                                    message:message
+                                                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+    [rootVC presentViewController:alert animated:YES completion:nil];
+    
+    NSLog(@"[KODA Mod] Режим автозалива активирован. Количество файлов: %ld", (long)count);
+}
+
+@end

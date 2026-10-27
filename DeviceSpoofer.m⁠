@@ -1,0 +1,34 @@
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+
+@interface DeviceSpoofer : NSObject
++ (void)applyRandomSpoofing;
+@end
+
+@implementation DeviceSpoofer
+
++ (void)applyRandomSpoofing {
+    // 1. Рандомный выбор модели iPhone из списка реальных устройств
+    NSArray *deviceModels = @[@"iPhone14,2", @"iPhone14,3", @"iPhone15,2", @"iPhone16,1", @"iPhone16,2"];
+    int randomModelIdx = arc4random_uniform((uint32_t)deviceModels.count);
+    NSString *spoofedModel = deviceModels[randomModelIdx];
+    
+    // 2. Рандомный выбор версии iOS
+    NSArray *iosVersions = @[@"17.2.1", @"17.4", @"17.5.1", @"18.0", @"18.1"];
+    int randomIosIdx = arc4random_uniform((uint32_t)iosVersions.count);
+    NSString *spoofedIosVersion = iosVersions[randomIosIdx];
+    
+    // 3. Генерация уникального рандомного ID для сессии (UUID)
+    NSString *randomUUID = [[NSUUID UUID] UUIDString];
+    
+    // 4. Сохранение во временное хранилище приложения, чтобы сессия оставалась стабильной в рамках одного захода
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setObject:spoofedModel forKey:@"CustomSpoofedModel"];
+    [defaults setObject:spoofedIosVersion forKey:@"CustomSpoofedIOS"];
+    [defaults setObject:randomUUID forKey:@"CustomDeviceIdentifier"];
+    [defaults synchronize];
+    
+    NSLog(@"[KODA Mod] Применен рандомный спуфинг: Модель = %@, iOS = %@, UUID = %@", spoofedModel, spoofedIosVersion, randomUUID);
+}
+
+@end

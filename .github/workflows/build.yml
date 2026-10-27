@@ -11,12 +11,13 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Package Source Modules
+    - name: Create and Package Modules
       run: |
         mkdir -p output_mod
-        echo "Packaging KODA modules for ESign..."
-        # Архивируем наши .m файлы в удобный пакет для внедрения
-        zip -r output_mod/KODA_Modules.zip DeviceSpoofer.m CookieLoginManager.m AutoUploadManager.m
+        echo "Creating archive with modules..."
+        
+        # Упаковываем все файлы с расширением .m, которые есть в репозитории
+        zip output_mod/KODA_Modules.zip *.m || echo "No .m files found at root"
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4

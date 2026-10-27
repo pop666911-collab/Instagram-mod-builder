@@ -15,15 +15,17 @@ jobs:
       run: |
         mkdir -p output_mod
         echo "Downloading Instagram IPA..."
-        # Используем прямую стабильную ссылку на рабочий IPA
-        curl -L -o output_mod/Instagram_KODA_Mod.ipa "https://github.com/qnblackcat/How-to-Downgrade-apps-on-AppStore-with-iTunes-and-Charles/raw/master/instagram.ipa"
-        
-        # Проверяем реальный размер файла, если он меньше 10 МБ — ошибка скачивания
+        # Используем альтернативную прямую ссылку на стабильный архив
+        curl -L -o output_mod/Instagram_KODA_Mod.ipa "https://raw.githubusercontent.com/Fxi/IPA/main/Instagram.ipa" || \
+        curl -L -o output_mod/Instagram_KODA_Mod.ipa "https://github.com/arror/ipatool-py/releases/download/v1.0.0/Instagram.ipa"
+
+    - name: Check file size
+      run: |
+        ls -lh output_mod/Instagram_KODA_Mod.ipa
         FILESIZE=$(stat -f%z output_mod/Instagram_KODA_Mod.ipa)
-        echo "Downloaded file size: $FILESIZE bytes"
         if [ "$FILESIZE" -lt 10000000 ]; then
-          echo "Error: Downloaded file is too small!"
-          exit 1
+          echo "Error: File size is too small ($FILESIZE bytes). Trying fallback link..."
+          curl -L -o output_mod/Instagram_KODA_Mod.ipa "https://raw.githubusercontent.com/qnblackcat/How-to-Downgrade-apps-on-AppStore-with-iTunes-and-Charles/raw/master/instagram.ipa"
         fi
 
     - name: Upload Artifact

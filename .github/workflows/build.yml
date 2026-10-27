@@ -11,12 +11,22 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Upload Exact Source Files
+    - name: Debug and List Files
+      run: |
+        echo "=== CURRENT DIRECTORY ==="
+        pwd
+        echo "=== FILE LIST ==="
+        ls -la
+        
+        # Создаем папку и копируем всё, что найдем с расширением .m или в верхнем регистре
+        mkdir -p exported
+        find . -maxdepth 2 -name "*.m" -exec cp {} exported/ \;
+        
+        echo "=== EXPORTED FILES ==="
+        ls -la exported/
+
+    - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: KODA_Source_Files
-        path: |
-          DeviceSpoofer.m
-          CookieLoginManager.m
-          AutoUploadManager.m
-        if-no-files-found: ignore
+        path: exported/

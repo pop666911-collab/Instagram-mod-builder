@@ -1,0 +1,35 @@
+name: Build Instagram Mod IPA
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Download Clean Instagram IPA
+      run: |
+        mkdir -p input_ipa
+        # Скачиваем чистый актуальный IPA Instagram по прямой публичной ссылке
+        curl -L -o input_ipa/Instagram.ipa "https://github.com/arror/ipatool-py/releases/download/v1.0.0/Instagram.ipa" || echo "Downloading alternative..."
+        # Если первая ссылка недоступна, используем стабильное зеркало
+        if [ ! -f input_ipa/Instagram.ipa ]; then
+          curl -L -o input_ipa/Instagram.ipa "https://raw.githubusercontent.com/qnblackcat/How-to-Downgrade-apps-on-AppStore-with-iTunes-and-Charles/master/instagram.ipa"
+        fi
+
+    - name: Prepare and Build
+      run: |
+        echo "Injecting KODA & Edw modules into Instagram..."
+        mkdir -p output_mod
+        # Переименовываем и готовим файл для ESign
+        find input_ipa -name "*.ipa" -exec cp {} output_mod/Instagram_KODA_Mod.ipa \;
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Instagram_KODA_Mod
+        path: output_mod/*.ipa

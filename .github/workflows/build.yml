@@ -11,18 +11,11 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Debug and List Files
+    - name: Copy All Repository Files
       run: |
-        echo "=== CURRENT DIRECTORY ==="
-        pwd
-        echo "=== FILE LIST ==="
-        ls -la
-        
-        # Создаем папку и копируем всё, что найдем с расширением .m или в верхнем регистре
         mkdir -p exported
-        find . -maxdepth 2 -name "*.m" -exec cp {} exported/ \;
-        
-        echo "=== EXPORTED FILES ==="
+        # Копируем вообще все файлы из текущей директории, исключая скрытые системные папки вроде .git
+        rsync -av --exclude='.git' --exclude='exported' ./ exported/
         ls -la exported/
 
     - name: Upload Artifact

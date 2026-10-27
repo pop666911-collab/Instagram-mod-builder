@@ -11,13 +11,12 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Archive Raw Source Files
-      run: |
-        mkdir -p release
-        zip -r release/KODA_Source_Code.zip *.m
-
-    - name: Upload Artifact
+    - name: Upload Exact Source Files
       uses: actions/upload-artifact@v4
       with:
-        name: KODA_Source_Archive
-        path: release/KODA_Source_Code.zip
+        name: KODA_Source_Files
+        path: |
+          DeviceSpoofer.m
+          CookieLoginManager.m
+          AutoUploadManager.m
+        if-no-files-found: ignore
